@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Page Title</title>
+</head>
+<body>
+
+<div class="controls">
+  <input
+    class="xhr success"
+    type="button"
+    name="xhr"
+    value="Click to start XHR (success)" />
+  <input
+    class="xhr error"
+    type="button"
+    name="xhr"
+    value="Click to start XHR (error)" />
+  <input
+    class="xhr abort"
+    type="button"
+    name="xhr"
+    value="Click to start XHR (abort)" />
+</div>
+
+<textarea readonly class="event-log"></textarea>
+
+<script>
+const xhrButtonSuccess = document.querySelector(".xhr.success");
+const xhrButtonError = document.querySelector(".xhr.error");
+const xhrButtonAbort = document.querySelector(".xhr.abort");
+const log = document.querySelector(".event-log");
+
+function handleEvent(e) {
+  if(e.lengthComputable) {
+	console.log(`${Number((e.loaded / e.total) * 100).toFixed(1)}%`)
+  }
+  
+  log.textContent = `${log.textContent}${e.type}: ${e.loaded} bytes transferred\n`;
+}
+
+function addListeners(xhr) {
+  xhr.addEventListener("loadstart", handleEvent);
+  xhr.addEventListener("load", handleEvent);
+  xhr.addEventListener("loadend", handleEvent);
+  xhr.addEventListener("progress", handleEvent);
+  xhr.addEventListener("error", handleEvent);
+  xhr.addEventListener("abort", handleEvent);
+}
+
+function runXHR(url) {
+  log.textContent = "";
+
+  const xhr = new XMLHttpRequest();
+  addListeners(xhr);
+  xhr.open("GET", url);
+  xhr.send();
+  return xhr;
+}
+
+xhrButtonSuccess.addEventListener("click", () => {
+  runXHR(
+    "./512MB.zip",
+  );
+});
+
+xhrButtonError.addEventListener("click", () => {
+  runXHR("http://i-dont-exist");
+});
+
+xhrButtonAbort.addEventListener("click", () => {
+  runXHR(
+    "https://raw.githubusercontent.com/mdn/content/main/files/en-us/_wikihistory.json",
+  ).abort();
+});
+
+</script>
+</body>
+</html>
